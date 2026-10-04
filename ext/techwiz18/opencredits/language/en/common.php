@@ -41,4 +41,5 @@ $lang = array_merge($lang, [
     'OC_TRANSFER_SELF'      => 'You cannot transfer credits to yourself.',
     'OC_TRANSFER_BAD_AMOUNT'    => 'Enter an amount greater than zero (max 2 decimals).',
     'OC_TRANSFER_BAD_CURRENCY'  => 'Pick a valid currency.',
+    'OC_DONATE'                 => 'Donate',
 ]);

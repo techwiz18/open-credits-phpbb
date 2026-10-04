@@ -27,18 +27,23 @@ class main_listener implements EventSubscriberInterface
     /** @var \phpbb\user */
     protected $user;
 
-    /** @var array Per-request cache: user_id => [currency_id => balance] */
-    protected $balance_cache = [];
+    /** @var string */
+    protected $root_path;
+
+    /** @var string */
+    protected $php_ext;
 
     /** @var array|null Per-request cache of active currency rows */
     protected $currency_cache = null;
 
-    public function __construct(\techwiz18\opencredits\service\transact $transact, \phpbb\auth\auth $auth, \phpbb\template\template $template, \phpbb\user $user)
+    public function __construct(\techwiz18\opencredits\service\transact $transact, \phpbb\auth\auth $auth, \phpbb\template\template $template, \phpbb\user $user, $root_path, $php_ext)
     {
         $this->transact = $transact;
         $this->auth = $auth;
         $this->template = $template;
         $this->user = $user;
+        $this->root_path = $root_path;
+        $this->php_ext = $php_ext;
     }
 
     public static function getSubscribedEvents()
@@ -155,8 +160,11 @@ class main_listener implements EventSubscriberInterface
     }
 
     /**
-     * Postbit balance line (visible currencies only). Gated on u_oc_view
-     * for the viewing user.
+     * Postbit balance values (visible currencies only) in core
+     * custom-field format, plus a donate link to the pre-filled
+     * transfer form. Values ride on post_row (per-post) because root
+     * template blocks would repeat under every post on the page.
+     * Gated on u_oc_view for the viewing user.
      */
     public function show_postbit_credits($event)
     {
@@ -164,18 +172,47 @@ class main_listener implements EventSubscriberInterface
         {
             return;
         }
-        $label = $this->credits_label((int) $event['poster_id'], true);
-        if ($label === '')
+        $poster_id = (int) $event['poster_id'];
+        if ($poster_id <= 0 || $poster_id === (int) ANONYMOUS)
+        {
+            return;
+        }
+        if ($this->currency_cache === null)
+        {
+            $this->currency_cache = $this->transact->active_currencies();
+        }
+        $titles = [];
+        $amounts = [];
+        foreach ($this->currency_cache as $currency)
+        {
+            if (!(int) $currency['visible'])
+            {
+                continue;
+            }
+            $balance = $this->transact->get_balance($poster_id, (int) $currency['currency_id']);
+            if ($balance === '0.00')
+            {
+                continue;
+            }
+            $titles[] = $currency['title'];
+            $amounts[] = $currency['prefix'] . $balance . $currency['suffix'];
+        }
+        if (empty($titles))
         {
             return;
         }
         $post_row = $event['post_row'];
-        $post_row['OC_CREDITS'] = $label;
+        $post_row['OC_CREDITS_TITLE'] = implode(', ', $titles);
+        $post_row['OC_CREDITS_AMOUNTS'] = implode(', ', $amounts);
+        if ($this->auth->acl_get('u_oc_transfer') && $poster_id !== (int) $this->user->data['user_id'])
+        {
+            $post_row['U_OC_DONATE'] = $this->donate_url($poster_id);
+        }
         $event['post_row'] = $post_row;
     }
 
     /**
-     * Profile wallet rows, one per held currency ("Credits: $6.00").
+     * Profile wallet rows, one per held currency, plus a donate link.
      * Gated on u_oc_view for the viewing user.
      */
     public function show_profile_credits($event)
@@ -205,50 +242,20 @@ class main_listener implements EventSubscriberInterface
                 'BALANCE'   => $currency['prefix'] . $balance . $currency['suffix'],
             ]);
         }
+        if ($this->auth->acl_get('u_oc_transfer') && $user_id !== (int) $this->user->data['user_id'])
+        {
+            $this->template->assign_var('U_OC_DONATE', $this->donate_url($user_id));
+        }
     }
 
     /**
-     * "Credits: $6.00" style label per currency. Returns '' when the user
-     * holds nothing (keeps postbit clean). Identical string on postbit and
-     * profile so the two surfaces never disagree.
+     * UCP transfer form pre-filled with this recipient. Mirrors
+     * p_master::get_module_identifier() (backslashes become dashes).
      */
-    protected function credits_label($user_id, $visible_only)
+    protected function donate_url($user_id)
     {
-        if ($user_id <= 0)
-        {
-            return '';
-        }
-        if ($this->currency_cache === null)
-        {
-            $this->currency_cache = $this->transact->active_currencies();
-        }
-        if (!isset($this->balance_cache[$user_id]))
-        {
-            $this->balance_cache[$user_id] = [];
-            foreach ($this->currency_cache as $currency)
-            {
-                $balance = $this->transact->get_balance($user_id, (int) $currency['currency_id']);
-                if ($balance !== '0.00')
-                {
-                    $this->balance_cache[$user_id][(int) $currency['currency_id']] = $balance;
-                }
-            }
-        }
-        $parts = [];
-        foreach ($this->currency_cache as $currency)
-        {
-            $currency_id = (int) $currency['currency_id'];
-            if ($visible_only && !(int) $currency['visible'])
-            {
-                continue;
-            }
-            if (!isset($this->balance_cache[$user_id][$currency_id]))
-            {
-                continue;
-            }
-            $parts[] = $currency['title'] . ': ' . $currency['prefix'] . $this->balance_cache[$user_id][$currency_id] . $currency['suffix'];
-        }
-        return implode(', ', $parts);
+        $identifier = str_replace('\\', '-', '\techwiz18\opencredits\ucp\main_module');
+        return append_sid($this->root_path . 'ucp.' . $this->php_ext, 'i=' . $identifier . '&mode=transfer&oc_to=' . (int) $user_id);
     }
 
     /**

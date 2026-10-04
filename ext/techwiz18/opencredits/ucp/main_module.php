@@ -89,6 +89,17 @@ class main_module
         $recipient_default = '';
         $amount_default = '';
 
+        // Donate links land here with ?oc_to=<user_id>; prefill the recipient.
+        $to_id = $request->variable('oc_to', 0);
+        if ($to_id > 0)
+        {
+            $to_name = $this->find_username($to_id);
+            if ($to_name !== '' && $to_id !== $user_id)
+            {
+                $recipient_default = $to_name;
+            }
+        }
+
         foreach ($currencies as $currency)
         {
             $currency_id = (int) $currency['currency_id'];
@@ -156,7 +167,7 @@ class main_module
         ]);
     }
 
-    /** username → user_id; 0 when missing, self-lookup excluded by caller. Rejects bots/guests. */
+    /** username → user_id; 0 when missing. Rejects bots/guests. */
     protected function find_user_id($username)
     {
         global $db;
@@ -175,6 +186,27 @@ class main_module
             return 0;
         }
         return (int) $row['user_id'];
+    }
+
+    /** user_id → username; '' when missing or not receivable (bots/guests). */
+    protected function find_username($user_id)
+    {
+        global $db;
+        $user_id = (int) $user_id;
+        if ($user_id <= 0)
+        {
+            return '';
+        }
+        $sql = 'SELECT username, user_type FROM ' . USERS_TABLE . '
+            WHERE user_id = ' . $user_id;
+        $result = $db->sql_query($sql);
+        $row = $db->sql_fetchrow($result);
+        $db->sql_freeresult($result);
+        if (!$row || $user_id === (int) ANONYMOUS || (int) $row['user_type'] === (int) USER_IGNORE)
+        {
+            return '';
+        }
+        return (string) $row['username'];
     }
 
     protected function currency_map()
