@@ -22,7 +22,7 @@ $lang = array_merge($lang, [
     'ACP_OC_EVENTS'     => 'Earn triggers',
 
     'ACP_OC_CURRENCIES_EXPLAIN' => 'Active is the master switch (inactive currencies earn and show nothing). Primary is the postbit currency — exactly one is required. Visible gates the profile and front-page lists. New currencies appear everywhere once active; they only earn once trigger rows point at them.',
-    'ACP_OC_EVENTS_EXPLAIN'     => 'Amounts pay out on every matching action while active. Max per day 0 means unlimited. Forum IDs is an optional comma-separated list (empty means all forums).',
+    'ACP_OC_EVENTS_EXPLAIN'     => 'Amounts pay out on every matching action while active. Max awards/day counts how many times the trigger may pay each user per day (0 = unlimited) — it is not a cap on the total amount. Forum IDs is an optional comma-separated list (empty means all forums).',
     'ACP_OC_ADD_TRIGGER_EXPLAIN' => 'Add another payout row: the same trigger can pay several currencies at once (rows stack), or pay different amounts in different forums. Switching a row to another currency moves that payout — adding a row is how a new currency starts earning.',
 
     'OC_COL_TITLE'      => 'Title',
@@ -38,7 +38,7 @@ $lang = array_merge($lang, [
     'OC_COL_TRIGGER'    => 'Trigger',
     'OC_COL_CURRENCY'   => 'Currency',
     'OC_COL_AMOUNT'     => 'Amount',
-    'OC_COL_MAXDAY'     => 'Max per day',
+    'OC_COL_MAXDAY'     => 'Max awards/day',
     'OC_COL_FORUMS'     => 'Forum IDs',
 
     'OC_ACP_NEED_TITLE'     => 'Every currency needs a title.',
