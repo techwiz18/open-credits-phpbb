@@ -1,0 +1,35 @@
+<h1>{L_ACP_OC_EVENTS}</h1>
+
+<p>{L_ACP_OC_EVENTS_EXPLAIN}</p>
+
+<form id="oc_events" method="post" action="{U_ACTION}">
+    <table class="table1 zebra-table">
+    <thead>
+    <tr>
+        <th>{L_OC_COL_TRIGGER}</th>
+        <th>{L_OC_COL_CURRENCY}</th>
+        <th>{L_OC_COL_AMOUNT}</th>
+        <th>{L_OC_COL_MAXDAY}</th>
+        <th>{L_OC_COL_FORUMS}</th>
+        <th>{L_OC_COL_ACTIVE}</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- BEGIN events -->
+    <tr>
+        <td><strong>{events.TRIGGER}</strong></td>
+        <td><select name="ev[{events.ID}][currency_id]"><!-- BEGIN currencies --><option value="{currencies.ID}"<!-- IF events.CURRENCY_ID == currencies.ID --> selected="selected"<!-- ENDIF -->>{currencies.TITLE}</option><!-- END currencies --></select></td>
+        <td><input type="text" name="ev[{events.ID}][amount]" value="{events.AMOUNT}" size="8" /></td>
+        <td><input type="number" name="ev[{events.ID}][max_per_day]" value="{events.MAX_PER_DAY}" min="0" size="5" /></td>
+        <td><input type="text" name="ev[{events.ID}][forum_ids]" value="{events.FORUM_IDS}" size="12" /></td>
+        <td style="text-align:center;"><input type="checkbox" name="ev[{events.ID}][active]" value="1"<!-- IF events.ACTIVE --> checked="checked"<!-- ENDIF --> /></td>
+    </tr>
+    <!-- END events -->
+    </tbody>
+    </table>
+
+    <fieldset class="submit-buttons">
+        {S_FORM_TOKEN}
+        <input class="button1" type="submit" name="oc_save" value="{L_SUBMIT}" />
+    </fieldset>
+</form>

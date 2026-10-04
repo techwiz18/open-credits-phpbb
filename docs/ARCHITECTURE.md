@@ -19,7 +19,8 @@ The phpBB runtime in `www/` is gitignored and never committed.
 | `event/main_listener.php` | All core-event subscriptions (no business logic) |
 | `service/transact.php` | **Only place that writes balances.** Row lock + txn + ledger. Integer-cents math; `adjust()` unrestricted, `transfer()` never overdraws |
 | `migrations/v10x/*.php` | Schema + seed data + ACP/UCP module + permission installs |
-| `acp/main_info.php`, `acp/main_module.php` | ACP currency/event management |
+| `acp/main_info.php`, `acp/main_module.php` | ACP currency/event management (Currencies + Earn triggers modes) |
+| `console/command/rebuild.php` | `opencredits:rebuild` CLI (ledger → balances) |
 | `ucp/main_info.php`, `ucp/main_module.php` | Wallet history + transfer form |
 | `controller/` (+ `config/routing.yml`) | Only if a public/AJAX page is needed beyond UCP |
 | `language/en/*.php` | `common`, `permissions_oc`, `info_acp_oc` |

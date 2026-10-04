@@ -1,0 +1,56 @@
+<h1>{L_ACP_OC_SETTINGS}</h1>
+
+<p>{L_ACP_OC_CURRENCIES_EXPLAIN}</p>
+
+<form id="oc_currencies" method="post" action="{U_ACTION}">
+    <table class="table1 zebra-table">
+    <thead>
+    <tr>
+        <th>{L_OC_COL_TITLE}</th>
+        <th>{L_OC_COL_PREFIX}</th>
+        <th>{L_OC_COL_SUFFIX}</th>
+        <th>{L_OC_COL_ACTIVE}</th>
+        <th>{L_OC_COL_VISIBLE}</th>
+        <th>{L_OC_COL_NEGATIVE}</th>
+        <th>{L_OC_COL_PRIMARY}</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- BEGIN currencies -->
+    <tr>
+        <td><input type="text" name="curr[{currencies.ID}][title]" value="{currencies.TITLE}" maxlength="255" /></td>
+        <td><input type="text" name="curr[{currencies.ID}][prefix]" value="{currencies.PREFIX}" maxlength="16" size="6" /></td>
+        <td><input type="text" name="curr[{currencies.ID}][suffix]" value="{currencies.SUFFIX}" maxlength="16" size="6" /></td>
+        <td style="text-align:center;"><input type="checkbox" name="curr[{currencies.ID}][active]" value="1"<!-- IF currencies.ACTIVE --> checked="checked"<!-- ENDIF --> /></td>
+        <td style="text-align:center;"><input type="checkbox" name="curr[{currencies.ID}][visible]" value="1"<!-- IF currencies.VISIBLE --> checked="checked"<!-- ENDIF --> /></td>
+        <td style="text-align:center;"><input type="checkbox" name="curr[{currencies.ID}][allow_negative]" value="1"<!-- IF currencies.ALLOW_NEGATIVE --> checked="checked"<!-- ENDIF --> /></td>
+        <td style="text-align:center;"><input type="radio" name="primary_id" value="{currencies.ID}"<!-- IF currencies.IS_PRIMARY --> checked="checked"<!-- ENDIF --> /></td>
+    </tr>
+    <!-- END currencies -->
+    </tbody>
+    </table>
+
+    <fieldset class="submit-buttons">
+        {S_FORM_TOKEN}
+        <input class="button1" type="submit" name="oc_save" value="{L_SUBMIT}" />
+    </fieldset>
+
+    <h2>{L_OC_COL_ADD_CURRENCY}</h2>
+    <fieldset>
+    <dl>
+        <dt><label for="oc_new_title">{L_OC_COL_TITLE}{L_COLON}</label></dt>
+        <dd><input type="text" id="oc_new_title" name="oc_new_title" maxlength="255" /></dd>
+    </dl>
+    <dl>
+        <dt><label for="oc_new_prefix">{L_OC_COL_PREFIX}{L_COLON}</label></dt>
+        <dd><input type="text" id="oc_new_prefix" name="oc_new_prefix" maxlength="16" size="6" /></dd>
+    </dl>
+    <dl>
+        <dt><label for="oc_new_suffix">{L_OC_COL_SUFFIX}{L_COLON}</label></dt>
+        <dd><input type="text" id="oc_new_suffix" name="oc_new_suffix" maxlength="16" size="6" /></dd>
+    </dl>
+    </fieldset>
+    <fieldset class="submit-buttons">
+        <input class="button1" type="submit" name="oc_add" value="{L_OC_COL_ADD}" />
+    </fieldset>
+</form>

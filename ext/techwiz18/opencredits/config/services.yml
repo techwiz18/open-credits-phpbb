@@ -15,3 +15,10 @@ services:
             - '%core.php_ext%'
         tags:
             - { name: event.listener }
+    techwiz18.opencredits.command.rebuild:
+        class: techwiz18\opencredits\console\command\rebuild
+        arguments:
+            - '@user'
+            - '@techwiz18.opencredits.transact'
+        tags:
+            - { name: console.command }
