@@ -1,0 +1,45 @@
+services:
+  web:
+    build: .
+    ports:
+      - "${WEB_PORT:-8090}:80"
+    volumes:
+      - ./www:/var/www/html
+      - ./ext/techwiz18/opencredits:/var/www/html/ext/techwiz18/opencredits
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html
+
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "33061:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-phpbb_dev}
+      MYSQL_USER: ${MYSQL_USER:-phpbb}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-phpbbdev}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-rootpass}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  pma:
+    image: phpmyadmin/phpmyadmin:5.2
+    ports:
+      - "${PMA_PORT:-8091}:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpass}
+    depends_on:
+      - db
+
+volumes:
+  db_data:

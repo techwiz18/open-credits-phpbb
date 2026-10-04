@@ -1,0 +1,13 @@
+# phpBB runtime (full package, dev-only) — never commit
+www/
+# Docker data
+db_data/
+# Build artifacts
+ext/techwiz18/opencredits/_releases/
+# Env
+.env
+# OS
+.DS_Store
+Thumbs.db
+# Logs
+*.log
