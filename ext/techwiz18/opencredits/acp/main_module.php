@@ -124,7 +124,7 @@ class main_module
             {
                 trigger_error($language->lang('OC_ACP_NEED_TITLE') . adm_back_link($this->u_action), E_USER_WARNING);
             }
-            $sql = 'UPDATE ' . $table . ' ' . $db->sql_build_array('UPDATE', [
+            $sql = 'UPDATE ' . $table . ' SET ' . $db->sql_build_array('UPDATE', [
                 'title'             => substr(trim($fields['title']), 0, 255),
                 'prefix'            => substr($fields['prefix'], 0, 16),
                 'suffix'            => substr($fields['suffix'], 0, 16),
@@ -211,7 +211,7 @@ class main_module
             $forums = array_filter(array_map('trim', explode(',', $fields['forum_ids'])), function ($f) {
                 return ctype_digit($f);
             });
-            $sql = 'UPDATE ' . $table . ' ' . $db->sql_build_array('UPDATE', [
+            $sql = 'UPDATE ' . $table . ' SET ' . $db->sql_build_array('UPDATE', [
                 'currency_id'   => max(0, (int) $fields['currency_id']),
                 'amount'        => sprintf('%.2F', (float) $fields['amount']),
                 'max_per_day'   => max(0, (int) $fields['max_per_day']),
