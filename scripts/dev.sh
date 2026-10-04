@@ -36,6 +36,10 @@ case "$cmd" in
   logs)
     docker compose logs -f "${2:-web}"
     ;;
+  fix-perms)
+    # Apache runs as www-data; the installer needs these writable (dev-only 0777).
+    docker compose exec -T web bash -c "chmod 0777 config.php && chmod -R 0777 cache store files images/avatars/upload"
+    ;;
   link-ext)
     # ext/ is bind-mounted into the web container (see docker-compose.yml).
     docker compose exec web ls -la /var/www/html/ext/techwiz18/opencredits/
