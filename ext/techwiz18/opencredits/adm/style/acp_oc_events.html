@@ -22,7 +22,7 @@
     <!-- BEGIN events -->
     <tr>
         <td><strong>{events.TRIGGER}</strong></td>
-        <td><select name="ev[{events.ID}][currency_id]"><!-- BEGIN currencies --><option value="{currencies.ID}"<!-- IF events.CURRENCY_ID == currencies.ID --> selected="selected"<!-- ENDIF -->>{currencies.TITLE}</option><!-- END currencies --></select></td>
+        <td><select name="ev[{events.ID}][currency_id]"><!-- BEGIN currencies --><option value="{events.currencies.ID}"<!-- IF events.currencies.SELECTED --> selected="selected"<!-- ENDIF -->>{events.currencies.TITLE}</option><!-- END currencies --></select></td>
         <td><input type="text" name="ev[{events.ID}][amount]" value="{events.AMOUNT}" size="8" /></td>
         <td><input type="number" name="ev[{events.ID}][max_per_day]" value="{events.MAX_PER_DAY}" min="0" size="5" /></td>
         <td><input type="text" name="ev[{events.ID}][forum_ids]" value="{events.FORUM_IDS}" size="12" /></td>

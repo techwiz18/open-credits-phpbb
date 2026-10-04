@@ -168,22 +168,22 @@ class main_module
             $template->assign_block_vars('events', [
                 'ID'            => (int) $row['event_id'],
                 'TRIGGER'       => $row['trigger_name'],
-                'CURRENCY_ID'   => (int) $row['currency_id'],
                 'AMOUNT'        => $row['amount'],
                 'MAX_PER_DAY'   => (int) $row['max_per_day'],
                 'FORUM_IDS'     => $row['forum_ids'],
                 'ACTIVE'        => (int) $row['active'],
             ]);
+            // Nested per event row: a root-level block would not render here.
+            foreach ($currencies as $currency_id => $title)
+            {
+                $template->assign_block_vars('events.currencies', [
+                    'ID'        => $currency_id,
+                    'TITLE'     => $title,
+                    'SELECTED'  => $currency_id === (int) $row['currency_id'],
+                ]);
+            }
         }
         $db->sql_freeresult($result);
-
-        foreach ($currencies as $currency_id => $title)
-        {
-            $template->assign_block_vars('currencies', [
-                'ID'    => $currency_id,
-                'TITLE' => $title,
-            ]);
-        }
 
         add_form_key('oc_events');
         $template->assign_vars([
