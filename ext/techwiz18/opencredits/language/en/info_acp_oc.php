@@ -20,6 +20,12 @@ $lang = array_merge($lang, [
     'ACP_OC_TITLE'      => 'OpenCredits',
     'ACP_OC_SETTINGS'   => 'Currencies',
     'ACP_OC_EVENTS'     => 'Earn triggers',
+    'ACP_OC_TOOLS'      => 'Tools',
+
+    'ACP_OC_TOOLS_EXPLAIN' => 'Rebuild recomputes every cached balance from the append-only transaction ledger. Use it if balances ever look wrong; it never creates or deletes ledger rows.',
+    'OC_ACP_REBUILD_NOW'   => 'Rebuild balances now',
+    'OC_ACP_REBUILT'        => 'Rebuilt %d balance row(s) from the ledger.',
+    'OC_ACP_LOG_REBUILT'    => 'Rebuilt OpenCredits balances from the ledger',
 
     'ACP_OC_CURRENCIES_EXPLAIN' => 'Active is the master switch (inactive currencies earn and show nothing). Primary is the postbit currency — exactly one is required. Visible gates the profile and front-page lists. New currencies appear everywhere once active; they only earn once trigger rows point at them.',
     'ACP_OC_EVENTS_EXPLAIN'     => 'Amounts pay out on every matching action while active. Max awards/day counts how many times the trigger may pay each user per day (0 = unlimited) — it is not a cap on the total amount. Forum IDs is an optional comma-separated list (empty means all forums).',

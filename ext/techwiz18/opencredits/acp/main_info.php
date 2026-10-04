@@ -26,6 +26,11 @@ class main_info
                     'auth'  => 'acl_a_board',
                     'cat'   => ['ACP_OC_TITLE'],
                 ],
+                'tools'     => [
+                    'title' => 'ACP_OC_TOOLS',
+                    'auth'  => 'acl_a_board',
+                    'cat'   => ['ACP_OC_TITLE'],
+                ],
             ],
         ];
     }

@@ -30,6 +30,11 @@ class main_module
                 $this->handle_events($db, $request, $template, $language);
             break;
 
+            case 'tools':
+                $this->page_title = $language->lang('ACP_OC_TOOLS');
+                $this->handle_tools($template, $language, $request);
+            break;
+
             case 'settings':
             default:
                 $this->page_title = $language->lang('ACP_OC_SETTINGS');
@@ -290,5 +295,36 @@ class main_module
             'active'        => 1,
         ]);
         $db->sql_query($sql);
+    }
+
+    /* ---------------- tools ---------------- */
+
+    protected function handle_tools($template, $language, $request)
+    {
+        global $phpbb_container;
+        $this->tpl_name = 'acp_oc_tools';
+
+        if ($request->is_set_post('oc_rebuild'))
+        {
+            if (!check_form_key('oc_tools'))
+            {
+                trigger_error('FORM_INVALID');
+            }
+            $transact = $phpbb_container->get('techwiz18.opencredits.transact');
+            $rows = $transact->rebuild_all_balances();
+            $this->log_rebuild();
+            trigger_error($language->lang('OC_ACP_REBUILT', $rows) . adm_back_link($this->u_action));
+        }
+
+        add_form_key('oc_tools');
+        $template->assign_vars([
+            'U_ACTION'  => $this->u_action,
+        ]);
+    }
+
+    protected function log_rebuild()
+    {
+        global $phpbb_log, $user;
+        $phpbb_log->add('admin', $user->data['user_id'], $user->ip, 'OC_ACP_LOG_REBUILT');
     }
 }
