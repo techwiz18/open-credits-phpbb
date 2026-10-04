@@ -20,6 +20,8 @@ $lang = array_merge($lang, [
     'OC_TITLE'          => 'OpenCredits',
     'OC_WALLET'         => 'Wallet',
     'OC_BALANCE'        => 'Balance',
+    'OC_WALLET_CURRENCY' => 'Currency',
+    'OC_WALLET_BALANCE'  => 'Balance',
 
     'UCP_OC_WALLET'     => 'OpenCredits',
     'UCP_OC_HISTORY'    => 'Transaction history',
