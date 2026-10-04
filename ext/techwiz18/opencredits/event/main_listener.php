@@ -226,6 +226,7 @@ class main_listener implements EventSubscriberInterface
         {
             $this->currency_cache = $this->transact->active_currencies();
         }
+        $may_donate = $this->auth->acl_get('u_oc_transfer') && $user_id !== (int) ($this->user->data['user_id'] ?? 0);
         foreach ($this->currency_cache as $currency)
         {
             if (!(int) $currency['visible'])
@@ -233,25 +234,31 @@ class main_listener implements EventSubscriberInterface
                 continue;
             }
             $balance = $this->transact->get_balance($user_id, (int) $currency['currency_id']);
-            $this->template->assign_block_vars('oc_wallet', [
+            $row = [
                 'TITLE'     => $currency['title'],
                 'BALANCE'   => $currency['prefix'] . $balance . $currency['suffix'],
-            ]);
-        }
-        if ($this->auth->acl_get('u_oc_transfer') && $user_id !== (int) ($this->user->data['user_id'] ?? 0))
-        {
-            $this->template->assign_var('U_OC_DONATE', $this->donate_url($user_id));
+            ];
+            if ($may_donate)
+            {
+                $row['U_DONATE'] = $this->donate_url($user_id, (int) $currency['currency_id']);
+            }
+            $this->template->assign_block_vars('oc_wallet', $row);
         }
     }
 
     /**
-     * UCP transfer form pre-filled with this recipient. Mirrors
-     * p_master::get_module_identifier() (backslashes become dashes).
+     * UCP transfer form pre-filled with this recipient (and currency).
+     * Mirrors p_master::get_module_identifier() (backslashes become dashes).
      */
-    protected function donate_url($user_id)
+    protected function donate_url($user_id, $currency_id = 0)
     {
         $identifier = str_replace('\\', '-', '\techwiz18\opencredits\ucp\main_module');
-        return append_sid($this->root_path . 'ucp.' . $this->php_ext, 'i=' . $identifier . '&mode=transfer&oc_to=' . (int) $user_id);
+        $params = 'i=' . $identifier . '&mode=transfer&oc_to=' . (int) $user_id;
+        if ((int) $currency_id > 0)
+        {
+            $params .= '&oc_cur=' . (int) $currency_id;
+        }
+        return append_sid($this->root_path . 'ucp.' . $this->php_ext, $params);
     }
 
     /**

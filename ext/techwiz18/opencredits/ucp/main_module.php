@@ -89,7 +89,7 @@ class main_module
         $recipient_default = '';
         $amount_default = '';
 
-        // Donate links land here with ?oc_to=<user_id>; prefill the recipient.
+        // Donate links land here with ?oc_to=<user_id>&oc_cur=<currency_id>.
         $to_id = $request->variable('oc_to', 0);
         if ($to_id > 0)
         {
@@ -99,6 +99,7 @@ class main_module
                 $recipient_default = $to_name;
             }
         }
+        $preselect_currency = $request->variable('oc_cur', 0);
 
         foreach ($currencies as $currency)
         {
@@ -107,6 +108,7 @@ class main_module
                 'ID'        => $currency_id,
                 'NAME'      => $currency['title'],
                 'BALANCE'   => $this->format_amount($this->currency_map(), $currency_id, $this->transact->get_balance($user_id, $currency_id)),
+                'SELECTED'  => $currency_id === $preselect_currency,
             ]);
         }
 

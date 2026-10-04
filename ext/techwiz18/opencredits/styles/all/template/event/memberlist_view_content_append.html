@@ -6,13 +6,9 @@
 
     <dl class="details">
     <!-- BEGIN oc_wallet -->
-        <dt>{oc_wallet.TITLE}{L_COLON}</dt> <dd>{oc_wallet.BALANCE}</dd>
+        <dt>{oc_wallet.TITLE}{L_COLON}</dt> <dd>{oc_wallet.BALANCE}<!-- IF oc_wallet.U_DONATE --> (<a href="{oc_wallet.U_DONATE}">{L_OC_DONATE}</a>)<!-- ENDIF --></dd>
     <!-- END oc_wallet -->
     </dl>
-
-    <!-- IF U_OC_DONATE -->
-    <p><a href="{U_OC_DONATE}" class="button2">{L_OC_DONATE}</a></p>
-    <!-- ENDIF -->
 
     </div>
 </div>
