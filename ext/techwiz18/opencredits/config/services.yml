@@ -9,5 +9,6 @@ services:
         arguments:
             - '@techwiz18.opencredits.transact'
             - '@auth'
+            - '@template'
         tags:
             - { name: event.listener }

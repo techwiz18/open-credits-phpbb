@@ -134,7 +134,8 @@ class main_module
 
             if (empty($errors))
             {
-                if ($this->transact->transfer($user_id, $recipient_id, $currency_id, $amount_raw))
+                $note = $user->data['username'] . ' -> ' . $recipient_name;
+                if ($this->transact->transfer($user_id, $recipient_id, $currency_id, $amount_raw, $note))
                 {
                     $redirect = $this->u_action;
                     meta_refresh(3, $redirect);

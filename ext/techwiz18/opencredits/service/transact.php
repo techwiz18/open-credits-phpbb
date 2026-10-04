@@ -103,7 +103,7 @@ class transact
      * refused (bad amount, self-transfer, or insufficient funds — the sender
      * can never be taken below zero by a transfer).
      */
-    public function transfer($from_user_id, $to_user_id, $currency_id, $amount)
+    public function transfer($from_user_id, $to_user_id, $currency_id, $amount, $note = '')
     {
         $from_user_id = (int) $from_user_id;
         $to_user_id = (int) $to_user_id;
@@ -127,9 +127,9 @@ class transact
             }
 
             $decimal = $this->to_decimal($cents);
-            $this->insert_ledger($currency_id, $from_user_id, '-' . $decimal, 'transfer_out', $to_user_id, '');
+            $this->insert_ledger($currency_id, $from_user_id, '-' . $decimal, 'transfer_out', $to_user_id, (string) $note);
             $this->bump_balance($currency_id, $from_user_id, '-' . $decimal);
-            $this->insert_ledger($currency_id, $to_user_id, $decimal, 'transfer_in', $from_user_id, '');
+            $this->insert_ledger($currency_id, $to_user_id, $decimal, 'transfer_in', $from_user_id, (string) $note);
             $this->bump_balance($currency_id, $to_user_id, $decimal);
 
             $this->db->sql_transaction('commit');

@@ -21,16 +21,20 @@ class main_listener implements EventSubscriberInterface
     /** @var \phpbb\auth\auth */
     protected $auth;
 
+    /** @var \phpbb\template\template */
+    protected $template;
+
     /** @var array Per-request cache: user_id => [currency_id => balance] */
     protected $balance_cache = [];
 
     /** @var array|null Per-request cache of active currency rows */
     protected $currency_cache = null;
 
-    public function __construct(\techwiz18\opencredits\service\transact $transact, \phpbb\auth\auth $auth)
+    public function __construct(\techwiz18\opencredits\service\transact $transact, \phpbb\auth\auth $auth, \phpbb\template\template $template)
     {
         $this->transact = $transact;
         $this->auth = $auth;
+        $this->template = $template;
     }
 
     public static function getSubscribedEvents()
@@ -93,10 +97,10 @@ class main_listener implements EventSubscriberInterface
 
         if ($mode === 'post')
         {
-            $this->transact->award_by_trigger('thread', $poster_id, (int) ($data['topic_id'] ?? 0), (int) ($data['forum_id'] ?? 0));
+            $this->transact->award_by_trigger('thread', $poster_id, (int) ($data['topic_id'] ?? 0), (int) ($data['forum_id'] ?? 0), 'New thread');
             return;
         }
-        $this->transact->award_by_trigger('post', $poster_id, (int) ($data['post_id'] ?? 0), (int) ($data['forum_id'] ?? 0));
+        $this->transact->award_by_trigger('post', $poster_id, (int) ($data['post_id'] ?? 0), (int) ($data['forum_id'] ?? 0), 'New reply');
     }
 
     /**
@@ -109,7 +113,7 @@ class main_listener implements EventSubscriberInterface
         {
             return;
         }
-        $this->transact->award_by_trigger('register', $user_id);
+        $this->transact->award_by_trigger('register', $user_id, 0, 0, 'Welcome bonus');
     }
 
     /**
@@ -142,7 +146,7 @@ class main_listener implements EventSubscriberInterface
         {
             return;
         }
-        $this->transact->award_by_trigger('daily_login', $user_id);
+        $this->transact->award_by_trigger('daily_login', $user_id, 0, 0, 'Daily visit');
     }
 
     /**
@@ -166,8 +170,8 @@ class main_listener implements EventSubscriberInterface
     }
 
     /**
-     * Profile wallet line (all active currencies). Gated on u_oc_view
-     * for the viewing user.
+     * Profile wallet rows, one per held currency ("Credits: $6.00").
+     * Gated on u_oc_view for the viewing user.
      */
     public function show_profile_credits($event)
     {
@@ -175,14 +179,27 @@ class main_listener implements EventSubscriberInterface
         {
             return;
         }
-        $label = $this->credits_label((int) $event['user_id'], false);
-        if ($label === '')
+        $user_id = (int) $event['user_id'];
+        if ($user_id <= 0)
         {
             return;
         }
-        $template_ary = $event['template_ary'];
-        $template_ary['OC_WALLET'] = $label;
-        $event['template_ary'] = $template_ary;
+        if ($this->currency_cache === null)
+        {
+            $this->currency_cache = $this->transact->active_currencies();
+        }
+        foreach ($this->currency_cache as $currency)
+        {
+            $balance = $this->transact->get_balance($user_id, (int) $currency['currency_id']);
+            if ($balance === '0.00')
+            {
+                continue;
+            }
+            $this->template->assign_block_vars('oc_wallet', [
+                'TITLE'     => $currency['title'],
+                'BALANCE'   => $currency['prefix'] . $balance . $currency['suffix'],
+            ]);
+        }
     }
 
     /**
