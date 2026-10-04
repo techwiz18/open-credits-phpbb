@@ -21,7 +21,7 @@ $lang = array_merge($lang, [
     'ACP_OC_SETTINGS'   => 'Currencies',
     'ACP_OC_EVENTS'     => 'Earn triggers',
 
-    'ACP_OC_CURRENCIES_EXPLAIN' => 'One currency must be primary (used for the main display). New currencies start inactive for earning until you add trigger rows for them.',
+    'ACP_OC_CURRENCIES_EXPLAIN' => 'Active is the master switch (inactive currencies earn and show nothing). Primary is the postbit currency — exactly one is required. Visible gates the profile and front-page lists. New currencies appear everywhere once active; they only earn once trigger rows point at them.',
     'ACP_OC_EVENTS_EXPLAIN'     => 'Amounts pay out on every matching action while active. Max per day 0 means unlimited. Forum IDs is an optional comma-separated list (empty means all forums).',
 
     'OC_COL_TITLE'      => 'Title',

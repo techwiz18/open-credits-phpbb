@@ -160,11 +160,10 @@ class main_listener implements EventSubscriberInterface
     }
 
     /**
-     * Postbit balance values (visible currencies only) in core
-     * custom-field format, plus a donate link to the pre-filled
-     * transfer form. Values ride on post_row (per-post) because root
-     * template blocks would repeat under every post on the page.
-     * Gated on u_oc_view for the viewing user.
+     * Postbit shows the primary currency (active only), even at zero —
+     * switching primary visibly changes the postbit. Values ride on
+     * post_row (per-post) because root template blocks would repeat
+     * under every post on the page. Gated on u_oc_view.
      */
     public function show_postbit_credits($event)
     {
@@ -181,30 +180,24 @@ class main_listener implements EventSubscriberInterface
         {
             $this->currency_cache = $this->transact->active_currencies();
         }
-        $titles = [];
-        $amounts = [];
+        $primary = null;
         foreach ($this->currency_cache as $currency)
         {
-            if (!(int) $currency['visible'])
+            if ((int) $currency['is_primary'])
             {
-                continue;
+                $primary = $currency;
+                break;
             }
-            $balance = $this->transact->get_balance($poster_id, (int) $currency['currency_id']);
-            if ($balance === '0.00')
-            {
-                continue;
-            }
-            $titles[] = $currency['title'];
-            $amounts[] = $currency['prefix'] . $balance . $currency['suffix'];
         }
-        if (empty($titles))
+        if ($primary === null)
         {
             return;
         }
+        $balance = $this->transact->get_balance($poster_id, (int) $primary['currency_id']);
         $post_row = $event['post_row'];
-        $post_row['OC_CREDITS_TITLE'] = implode(', ', $titles);
-        $post_row['OC_CREDITS_AMOUNTS'] = implode(', ', $amounts);
-        if ($this->auth->acl_get('u_oc_transfer') && $poster_id !== (int) $this->user->data['user_id'])
+        $post_row['OC_CREDITS_TITLE'] = $primary['title'];
+        $post_row['OC_CREDITS_AMOUNTS'] = $primary['prefix'] . $balance . $primary['suffix'];
+        if ($this->auth->acl_get('u_oc_transfer') && $poster_id !== (int) ($this->user->data['user_id'] ?? 0))
         {
             $post_row['U_OC_DONATE'] = $this->donate_url($poster_id);
         }
@@ -212,7 +205,8 @@ class main_listener implements EventSubscriberInterface
     }
 
     /**
-     * Profile wallet rows, one per held currency, plus a donate link.
+     * Profile lists every active, visible currency — including zero
+     * balances, so new currencies appear without needing earn triggers.
      * Gated on u_oc_view for the viewing user.
      */
     public function show_profile_credits($event)
@@ -232,17 +226,17 @@ class main_listener implements EventSubscriberInterface
         }
         foreach ($this->currency_cache as $currency)
         {
-            $balance = $this->transact->get_balance($user_id, (int) $currency['currency_id']);
-            if ($balance === '0.00')
+            if (!(int) $currency['visible'])
             {
                 continue;
             }
+            $balance = $this->transact->get_balance($user_id, (int) $currency['currency_id']);
             $this->template->assign_block_vars('oc_wallet', [
                 'TITLE'     => $currency['title'],
                 'BALANCE'   => $currency['prefix'] . $balance . $currency['suffix'],
             ]);
         }
-        if ($this->auth->acl_get('u_oc_transfer') && $user_id !== (int) $this->user->data['user_id'])
+        if ($this->auth->acl_get('u_oc_transfer') && $user_id !== (int) ($this->user->data['user_id'] ?? 0))
         {
             $this->template->assign_var('U_OC_DONATE', $this->donate_url($user_id));
         }
@@ -260,8 +254,8 @@ class main_listener implements EventSubscriberInterface
 
     /**
      * Wallet summary on the UCP front page ("Your activity" section).
-     * Shows every active currency, including zero balances, so members
-     * always see what exists. Gated on u_oc_view.
+     * Lists every active, visible currency, including zero balances.
+     * Gated on u_oc_view.
      */
     public function show_front_summary($event)
     {
@@ -289,6 +283,10 @@ class main_listener implements EventSubscriberInterface
         }
         foreach ($this->currency_cache as $currency)
         {
+            if (!(int) $currency['visible'])
+            {
+                continue;
+            }
             $balance = $this->transact->get_balance($user_id, (int) $currency['currency_id']);
             $this->template->assign_block_vars('oc_front', [
                 'TITLE'     => $currency['title'],

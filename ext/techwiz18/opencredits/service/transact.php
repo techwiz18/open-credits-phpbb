@@ -60,9 +60,13 @@ class transact
 
         $paid = 0;
         $today = $this->day_start();
+        $active_currencies = $this->active_currency_ids();
         foreach ($this->active_events($trigger_name) as $event)
         {
-            if (!$this->forum_allowed($event, (int) $forum_id))
+            if (!isset($active_currencies[(int) $event['currency_id']]))
+            {
+                continue;
+            }            if (!$this->forum_allowed($event, (int) $forum_id))
             {
                 continue;
             }
@@ -199,6 +203,20 @@ class transact
         $rows = $this->db->sql_fetchrowset($result);
         $this->db->sql_freeresult($result);
         return $rows;
+    }
+
+    /**
+     * Set of active currency ids (map for isset checks). Inactive
+     * currencies earn nothing, even with active event rows.
+     */
+    public function active_currency_ids()
+    {
+        $ids = [];
+        foreach ($this->active_currencies() as $currency)
+        {
+            $ids[(int) $currency['currency_id']] = true;
+        }
+        return $ids;
     }
 
     /**
