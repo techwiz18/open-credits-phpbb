@@ -187,6 +187,47 @@ class transact
         return $this->db->sql_affectedrows();
     }
 
+    /**
+     * All active currencies, primary first. Read-only; safe for display.
+     */
+    public function active_currencies()
+    {
+        $sql = 'SELECT * FROM ' . $this->table_prefix . 'oc_currency
+            WHERE active = 1
+            ORDER BY is_primary DESC, currency_id ASC';
+        $result = $this->db->sql_query($sql);
+        $rows = $this->db->sql_fetchrowset($result);
+        $this->db->sql_freeresult($result);
+        return $rows;
+    }
+
+    /**
+     * Ledger row count for a user (history pagination total).
+     */
+    public function history_count($user_id)
+    {
+        $sql = 'SELECT COUNT(*) AS cnt FROM ' . $this->table_prefix . 'oc_transaction
+            WHERE user_id = ' . (int) $user_id;
+        $result = $this->db->sql_query($sql);
+        $count = (int) $this->db->sql_fetchfield('cnt');
+        $this->db->sql_freeresult($result);
+        return $count;
+    }
+
+    /**
+     * Ledger rows for a user, newest first. Read-only; safe for display.
+     */
+    public function user_history($user_id, $limit, $start)
+    {
+        $sql = 'SELECT * FROM ' . $this->table_prefix . 'oc_transaction
+            WHERE user_id = ' . (int) $user_id . '
+            ORDER BY transaction_id DESC';
+        $result = $this->db->sql_query_limit($sql, (int) $limit, (int) $start);
+        $rows = $this->db->sql_fetchrowset($result);
+        $this->db->sql_freeresult($result);
+        return $rows;
+    }
+
     /* ---------------- internals ---------------- */
 
     protected function active_events($trigger_name)

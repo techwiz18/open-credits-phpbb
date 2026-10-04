@@ -18,9 +18,19 @@ class main_listener implements EventSubscriberInterface
     /** @var \techwiz18\opencredits\service\transact */
     protected $transact;
 
-    public function __construct(\techwiz18\opencredits\service\transact $transact)
+    /** @var \phpbb\auth\auth */
+    protected $auth;
+
+    /** @var array Per-request cache: user_id => [currency_id => balance] */
+    protected $balance_cache = [];
+
+    /** @var array|null Per-request cache of active currency rows */
+    protected $currency_cache = null;
+
+    public function __construct(\techwiz18\opencredits\service\transact $transact, \phpbb\auth\auth $auth)
     {
         $this->transact = $transact;
+        $this->auth = $auth;
     }
 
     public static function getSubscribedEvents()
@@ -33,6 +43,8 @@ class main_listener implements EventSubscriberInterface
             'core.permissions'      => 'add_permissions',
             'core.submit_post_end'  => 'on_submit_post',
             'core.user_add_after'   => 'on_user_register',
+            'core.viewtopic_modify_post_row'                    => 'show_postbit_credits',
+            'core.memberlist_modify_view_profile_template_vars' => 'show_profile_credits',
         ];
     }
 
@@ -131,5 +143,88 @@ class main_listener implements EventSubscriberInterface
             return;
         }
         $this->transact->award_by_trigger('daily_login', $user_id);
+    }
+
+    /**
+     * Postbit balance line (visible currencies only). Gated on u_oc_view
+     * for the viewing user.
+     */
+    public function show_postbit_credits($event)
+    {
+        if (!$this->auth->acl_get('u_oc_view'))
+        {
+            return;
+        }
+        $label = $this->credits_label((int) $event['poster_id'], true);
+        if ($label === '')
+        {
+            return;
+        }
+        $post_row = $event['post_row'];
+        $post_row['OC_CREDITS'] = $label;
+        $event['post_row'] = $post_row;
+    }
+
+    /**
+     * Profile wallet line (all active currencies). Gated on u_oc_view
+     * for the viewing user.
+     */
+    public function show_profile_credits($event)
+    {
+        if (!$this->auth->acl_get('u_oc_view'))
+        {
+            return;
+        }
+        $label = $this->credits_label((int) $event['user_id'], false);
+        if ($label === '')
+        {
+            return;
+        }
+        $template_ary = $event['template_ary'];
+        $template_ary['OC_WALLET'] = $label;
+        $event['template_ary'] = $template_ary;
+    }
+
+    /**
+     * "Credits: $6.00, Loyalty: 12 pts" style label for a user.
+     * Returns '' when the user holds nothing (keeps postbit clean).
+     */
+    protected function credits_label($user_id, $visible_only)
+    {
+        if ($user_id <= 0)
+        {
+            return '';
+        }
+        if ($this->currency_cache === null)
+        {
+            $this->currency_cache = $this->transact->active_currencies();
+        }
+        if (!isset($this->balance_cache[$user_id]))
+        {
+            $this->balance_cache[$user_id] = [];
+            foreach ($this->currency_cache as $currency)
+            {
+                $balance = $this->transact->get_balance($user_id, (int) $currency['currency_id']);
+                if ($balance !== '0.00')
+                {
+                    $this->balance_cache[$user_id][(int) $currency['currency_id']] = $balance;
+                }
+            }
+        }
+        $parts = [];
+        foreach ($this->currency_cache as $currency)
+        {
+            $currency_id = (int) $currency['currency_id'];
+            if ($visible_only && !(int) $currency['visible'])
+            {
+                continue;
+            }
+            if (!isset($this->balance_cache[$user_id][$currency_id]))
+            {
+                continue;
+            }
+            $parts[] = $currency['prefix'] . $this->balance_cache[$user_id][$currency_id] . $currency['suffix'] . ' ' . $currency['title'];
+        }
+        return implode(', ', $parts);
     }
 }

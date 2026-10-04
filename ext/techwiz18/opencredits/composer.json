@@ -3,7 +3,7 @@
     "type": "phpbb-extension",
     "description": "OpenCredits for phpBB — multi-currency credits wallet (port of the XenForo OpenCredits addon)",
     "homepage": "https://github.com/techwiz18/open-credits",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "time": "2026-10-04",
     "keywords": ["phpbb", "extension", "credits", "wallet"],
     "license": "MIT",

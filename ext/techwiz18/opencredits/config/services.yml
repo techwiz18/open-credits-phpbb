@@ -8,5 +8,6 @@ services:
         class: techwiz18\opencredits\event\main_listener
         arguments:
             - '@techwiz18.opencredits.transact'
+            - '@auth'
         tags:
             - { name: event.listener }
