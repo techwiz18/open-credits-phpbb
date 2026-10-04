@@ -58,7 +58,9 @@ class main_listener implements EventSubscriberInterface
             'core.user_add_after'   => 'on_user_register',
             'core.viewtopic_modify_post_row'                    => 'show_postbit_credits',
             'core.memberlist_modify_view_profile_template_vars' => 'show_profile_credits',
-            'core.ucp_display_module_before'                    => 'show_front_summary',
+            // Fires inside the core front module only, whatever URL form
+            // reached it — no fragile id/mode string matching needed.
+            'core.ucp_main_front_modify_sql'                   => 'show_front_summary',
         ];
     }
 
@@ -255,20 +257,11 @@ class main_listener implements EventSubscriberInterface
     /**
      * Wallet summary on the UCP front page ("Your activity" section).
      * Lists every active, visible currency, including zero balances.
-     * Gated on u_oc_view.
+     * Gated on u_oc_view. Note: hooked to the front-page query event, so
+     * members who can see no forums at all won't get the summary (edge case).
      */
     public function show_front_summary($event)
     {
-        // The event fires before set_active() resolves defaults, and the id
-        // arrives in short ('main'), full ('ucp_main'), or empty form
-        // depending on how the front page was reached.
-        $id = (string) $event['id'];
-        $mode = (string) $event['mode'];
-        $is_front = ($id === '' || $id === 'main' || $id === 'ucp_main') && ($mode === '' || $mode === 'front');
-        if (!$is_front)
-        {
-            return;
-        }
         if (!$this->auth->acl_get('u_oc_view'))
         {
             return;
