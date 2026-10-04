@@ -1,62 +1,95 @@
-# OpenCredits for phpBB
+# OpenCredits for phpBB — open-source credits for phpBB 3.3
 
-Multi-currency credits wallet for phpBB 3.3 — a phpBB twin of the XenForo
-[OpenCredits](https://github.com/techwiz18/open-credits) addon. MIT licensed.
-No real-money features.
+[![PHP 8.1+](https://img.shields.io/badge/PHP-8.1%2B-blue)](https://www.php.net/) [![phpBB 3.3](https://img.shields.io/badge/phpBB-3.3-orange)](https://www.phpbb.com/) [![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-## Features (v0.3.x)
+A free (MIT) credits system for phpBB 3.3: reward activity, show balances,
+let members tip each other. A phpBB twin of
+[OpenCredits for XenForo](https://github.com/techwiz18/open-credits).
 
-* **Multi-currency**: primary + visible flags; append-only transaction ledger
-  with cached per-currency balances (missing row means zero).
-* **Earn triggers**: new thread, reply, registration, daily visit — amounts,
-  per-day limits, and forum allowlists configurable per currency, with
-  overlapping rows that stack.
-* **Member transfers**: double-entry, floored at zero, never overdraws.
-  Donate links on posts and profiles open the transfer form pre-filled.
-* **Wallet UI**: UCP tab (paged history + transfer form), navbar balance,
-  postbit / profile / front-page balances — all gated on view permission.
-* **Admin**: ACP currency + trigger management, `opencredits:rebuild` CLI to
-  rebuild balances from the ledger.
+## What members get
+
+* **Earn credits** for new threads, replies, registering, and visiting daily —
+  amounts managed in ACP → Extensions → OpenCredits → Earn triggers.
+* **Multiple currencies** (e.g. Credits, loyalty points), each with its own
+  balance, managed in ACP → Extensions → OpenCredits → Currencies.
+* **Wallet everywhere** — the main balance in the navbar and postbit, every
+  currency in the UCP front page and on member profiles, full per-currency
+  history in the UCP OpenCredits tab.
+* **Transfers and tips** — send credits from the wallet tab, or hit Donate on
+  any post or profile (recipient and currency pre-filled; transfers can never
+  overdraw).
 
 ## Requirements
 
 * phpBB 3.3.x, PHP 8.1–8.3, MySQL 5.7+/8.0 (or MariaDB equivalent).
+* No other extensions required.
 
-## Install (forum owners)
+## Install on your forum
 
-This repo is the development workspace; the shippable extension is the
-`ext/techwiz18/opencredits/` directory inside it.
-
-1. Copy `ext/techwiz18/opencredits/` to your board at
+1. Download this repo (Clone or Download ZIP) and find the
+   `ext/techwiz18/opencredits/` folder inside it.
+2. Upload that `opencredits` folder to your board at
    `ext/techwiz18/opencredits/` (so `composer.json` lands at
-   `ext/techwiz18/opencredits/composer.json`).
-2. Purge the cache (ACP → General → Purge the cache).
-3. ACP → Customise → Manage extensions → enable **OpenCredits**.
-4. Permissions are granted to Registered by default (`u_oc_view`,
-   `u_oc_transfer` under Misc); tune in ACP → Permissions.
-5. Configure amounts in the Extensions tab → OpenCredits → Earn triggers.
+   `ext/techwiz18/opencredits/composer.json`), preserving the path.
+3. Purge the cache (ACP → General → Purge the cache).
+4. ACP → Customise → Manage extensions → enable **OpenCredits**.
 
-## Development (Docker)
+Then:
 
-No local PHP/MySQL needed — see `docs/DEV.md` for the full walkthrough.
+1. Permissions (`u_oc_view`, `u_oc_transfer` under Misc) are auto-allowed for
+   Registered on install — adjust per group in ACP → Permissions if needed.
+2. Members start earning on the next post/visit. Balances appear in the
+   postbit and navbar automatically.
 
-```bash
-cp /path/to/phpBB-3.3.19.zip ../phpBB-3.3.19.zip  # full package, parent dir
-./scripts/dev.sh up        # build + start web/db/phpmyadmin
-./scripts/dev.sh unpack    # unzips into www/ (gitignored, never committed)
-# open http://localhost:8090/install — DB host: db, name: phpbb_dev, user: phpbb, pass: phpbbdev
-```
+## Admin map
 
-* Forum: http://localhost:8090 · phpMyAdmin: http://localhost:8091
-* The extension bind-mounts live into the container; enable it in ACP → Customise.
+* **Extensions tab → OpenCredits → Currencies** — titles, prefixes/suffixes,
+  active/visible flags, exactly one primary (the postbit currency), add new
+  currencies.
+* **Extensions tab → OpenCredits → Earn triggers** — per-trigger amount,
+  currency, max awards per day, forum allowlist, on/off, plus add-trigger
+  rows so new currencies can earn.
+* **Rebuild** — `php bin/phpbbcli.php opencredits:rebuild` recomputes every
+  balance from the append-only transaction log (use if balances ever look
+  wrong; disabling the extension keeps all data, deleting its data wipes it).
 
-## Docs
+## Earning defaults
 
-* `docs/ARCHITECTURE.md` — code map, tables, trigger matrix.
-* `docs/DEV.md` — dev-stack setup and commands.
-* `docs/PHPBB-GOTCHAS.md` — porting lessons (reserved words, module depths, template events…).
-* `docs/THANKS-INTEGRATION.md` — deferred design for a thanks-received trigger.
+| Action | Default |
+|---|---|
+| New thread | $5.00 |
+| Reply | $1.00 |
+| Registration | $10.00 |
+| Daily visit (once/day) | $5.00 |
+
+Change amounts, add triggers, or add currencies any time in the Extensions
+tab → OpenCredits.
+
+## Troubleshooting
+
+* **Balances look wrong** — run the rebuild above; every balance is re-derived
+  from the ledger.
+* **Wallet/transfer pages say no permission** — check the Misc permissions for
+  the member's groups (`u_oc_view`, `u_oc_transfer`).
+* **A new currency shows nowhere** — currencies only appear once Active; they
+  only earn once a trigger row points at them.
+
+## For developers
+
+* [docs/DEV.md](docs/DEV.md) — Docker dev environment in minutes.
+* [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — code map, schema, trigger
+  matrix (written as an LLM/contributor reference).
+* [docs/PHPBB-GOTCHAS.md](docs/PHPBB-GOTCHAS.md) — hard-won phpBB 3.3
+  conventions (reserved words, module depths, template events…).
+* [docs/THANKS-INTEGRATION.md](docs/THANKS-INTEGRATION.md) — deferred design
+  for a thanks-received trigger (ThanksForPosts is not bundled with phpBB).
+
+## Built with AI
+
+This project is vibe-coded: the code, docs, and much of the testing plan were
+produced with AI assistance and reviewed by a human. If you deploy it, treat it
+like any community extension — review security-sensitive changes and keep backups.
 
 ## License
 
-MIT — see `LICENSE`.
+MIT — see [LICENSE](LICENSE).
