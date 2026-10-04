@@ -1,0 +1,5 @@
+services:
+    techwiz18.opencredits.listener:
+        class: techwiz18\opencredits\event\main_listener
+        tags:
+            - { name: event.listener }
