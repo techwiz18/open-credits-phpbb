@@ -57,3 +57,13 @@ under `www/` — safe to `rm -rf www` + `dev.sh unpack` to start over.
 With `--safe-mode` the enable "succeeds" but silently skips migrations
 (verified: ext_active=1, zero tables, zero migration rows). If that happens,
 `extension:disable` + `extension:enable` (no flag) fixes it.
+
+## 10. ACP templates must include the layout themselves
+
+Unlike the front end (where `adm_page_header/footer` wrap the body), ACP
+module templates render **bare** unless they start with
+`<!-- INCLUDE overall_header.html -->` (+ `<a id="maincontent"></a>`) and end
+with `<!-- INCLUDE overall_footer.html -->`. Without them the page shows
+with no tabs, menu, or styling — and the missing menu hides sibling modes,
+which looks like modules "not appearing". (UCP templates need the analogous
+`ucp_header.html` / `ucp_footer.html` pair.)
