@@ -16,6 +16,9 @@ class main_module
     public $tpl_name;
     public $u_action;
 
+    /** Triggers the earn engine knows. Overlapping rows stack (incl. across currencies). */
+    protected static $trigger_options = ['thread', 'post', 'register', 'daily_login'];
+
     public function main($id, $mode)
     {
         global $db, $request, $template, $language;
@@ -153,6 +156,16 @@ class main_module
             trigger_error($language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
         }
 
+        if ($request->is_set_post('oc_add_event'))
+        {
+            if (!check_form_key('oc_events'))
+            {
+                trigger_error('FORM_INVALID');
+            }
+            $this->add_event($request, $language);
+            trigger_error($language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
+        }
+
         $currencies = [];
         $result = $db->sql_query('SELECT currency_id, title FROM ' . $this->currency_table() . ' ORDER BY currency_id ASC');
         while ($row = $db->sql_fetchrow($result))
@@ -189,6 +202,22 @@ class main_module
         $template->assign_vars([
             'U_ACTION'  => $this->u_action,
         ]);
+
+        foreach (self::$trigger_options as $trigger)
+        {
+            $template->assign_block_vars('triggers', [
+                'NAME'  => $trigger,
+            ]);
+        }
+        foreach ($currencies as $currency_id => $title)
+        {
+            // Root-level copy for the add-trigger form (the per-row
+            // lists above are nested under their event rows).
+            $template->assign_block_vars('add_currencies', [
+                'ID'    => $currency_id,
+                'TITLE' => $title,
+            ]);
+        }
     }
 
     protected function save_events($request, $language)
@@ -220,5 +249,42 @@ class main_module
             ]) . ' WHERE event_id = ' . $event_id;
             $db->sql_query($sql);
         }
+    }
+
+    protected function add_event($request, $language)
+    {
+        global $db, $table_prefix;
+
+        $trigger = $request->variable('oc_new_trigger', '');
+        $currency_id = $request->variable('oc_new_currency', 0);
+        $amount_raw = $request->variable('oc_new_amount', '');
+
+        if (!in_array($trigger, self::$trigger_options, true))
+        {
+            trigger_error($language->lang('OC_ACP_BAD_TRIGGER') . adm_back_link($this->u_action), E_USER_WARNING);
+        }
+        if (!is_numeric($amount_raw) || (float) $amount_raw == 0)
+        {
+            trigger_error($language->lang('OC_ACP_BAD_AMOUNT') . adm_back_link($this->u_action), E_USER_WARNING);
+        }
+
+        $sql = 'SELECT COUNT(*) AS cnt FROM ' . $this->currency_table() . ' WHERE currency_id = ' . (int) $currency_id;
+        $result = $db->sql_query($sql);
+        $exists = (int) $db->sql_fetchfield('cnt');
+        $db->sql_freeresult($result);
+        if (!$exists)
+        {
+            trigger_error($language->lang('OC_TRANSFER_BAD_CURRENCY') . adm_back_link($this->u_action), E_USER_WARNING);
+        }
+
+        $sql = 'INSERT INTO ' . $table_prefix . 'oc_event ' . $db->sql_build_array('INSERT', [
+            'currency_id'   => (int) $currency_id,
+            'trigger_name'  => $trigger,
+            'amount'        => sprintf('%.2F', (float) $amount_raw),
+            'forum_ids'     => '',
+            'max_per_day'   => 0,
+            'active'        => 1,
+        ]);
+        $db->sql_query($sql);
     }
 }

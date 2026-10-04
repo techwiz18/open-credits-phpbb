@@ -23,6 +23,7 @@ $lang = array_merge($lang, [
 
     'ACP_OC_CURRENCIES_EXPLAIN' => 'Active is the master switch (inactive currencies earn and show nothing). Primary is the postbit currency — exactly one is required. Visible gates the profile and front-page lists. New currencies appear everywhere once active; they only earn once trigger rows point at them.',
     'ACP_OC_EVENTS_EXPLAIN'     => 'Amounts pay out on every matching action while active. Max per day 0 means unlimited. Forum IDs is an optional comma-separated list (empty means all forums).',
+    'ACP_OC_ADD_TRIGGER_EXPLAIN' => 'Add another payout row: the same trigger can pay several currencies at once (rows stack), or pay different amounts in different forums. Switching a row to another currency moves that payout — adding a row is how a new currency starts earning.',
 
     'OC_COL_TITLE'      => 'Title',
     'OC_COL_PREFIX'     => 'Prefix',
@@ -32,6 +33,7 @@ $lang = array_merge($lang, [
     'OC_COL_NEGATIVE'   => 'Allow negative',
     'OC_COL_PRIMARY'    => 'Primary',
     'OC_COL_ADD_CURRENCY' => 'Add currency',
+    'OC_COL_ADD_TRIGGER' => 'Add earn trigger',
     'OC_COL_ADD'        => 'Add',
     'OC_COL_TRIGGER'    => 'Trigger',
     'OC_COL_CURRENCY'   => 'Currency',
@@ -42,4 +44,5 @@ $lang = array_merge($lang, [
     'OC_ACP_NEED_TITLE'     => 'Every currency needs a title.',
     'OC_ACP_NEED_PRIMARY'   => 'Exactly one currency must be primary.',
     'OC_ACP_BAD_AMOUNT'     => 'Amounts must be numbers.',
+    'OC_ACP_BAD_TRIGGER'    => 'Pick a valid trigger.',
 ]);
