@@ -61,6 +61,7 @@ class main_listener implements EventSubscriberInterface
             // Fires inside the core front module only, whatever URL form
             // reached it — no fragile id/mode string matching needed.
             'core.ucp_main_front_modify_sql'                   => 'show_front_summary',
+            'core.page_header_after'                            => 'show_nav_wallet',
         ];
     }
 
@@ -247,18 +248,70 @@ class main_listener implements EventSubscriberInterface
     }
 
     /**
+     * UCP wallet tab URL (any mode). Mirrors
+     * p_master::get_module_identifier() (backslashes become dashes).
+     */
+    protected function wallet_url($mode = 'history', $extra = '')
+    {
+        $identifier = str_replace('\\', '-', '\techwiz18\opencredits\ucp\main_module');
+        $params = 'i=' . $identifier . '&mode=' . $mode;
+        if ($extra !== '')
+        {
+            $params .= '&' . $extra;
+        }
+        return append_sid($this->root_path . 'ucp.' . $this->php_ext, $params);
+    }
+
+    /**
      * UCP transfer form pre-filled with this recipient (and currency).
-     * Mirrors p_master::get_module_identifier() (backslashes become dashes).
      */
     protected function donate_url($user_id, $currency_id = 0)
     {
-        $identifier = str_replace('\\', '-', '\techwiz18\opencredits\ucp\main_module');
-        $params = 'i=' . $identifier . '&mode=transfer&oc_to=' . (int) $user_id;
+        $extra = 'oc_to=' . (int) $user_id;
         if ((int) $currency_id > 0)
         {
-            $params .= '&oc_cur=' . (int) $currency_id;
+            $extra .= '&oc_cur=' . (int) $currency_id;
         }
-        return append_sid($this->root_path . 'ucp.' . $this->php_ext, $params);
+        return $this->wallet_url('transfer', $extra);
+    }
+
+    /**
+     * Navbar balance + user-dropdown wallet link (primary currency).
+     * Gated on login + u_oc_view.
+     */
+    public function show_nav_wallet($event)
+    {
+        $user_id = (int) ($this->user->data['user_id'] ?? 0);
+        if ($user_id <= 0 || $user_id === (int) ANONYMOUS || empty($this->user->data['is_registered']))
+        {
+            return;
+        }
+        if (!$this->auth->acl_get('u_oc_view'))
+        {
+            return;
+        }
+        if ($this->currency_cache === null)
+        {
+            $this->currency_cache = $this->transact->active_currencies();
+        }
+        $primary = null;
+        foreach ($this->currency_cache as $currency)
+        {
+            if ((int) $currency['is_primary'])
+            {
+                $primary = $currency;
+                break;
+            }
+        }
+        if ($primary === null)
+        {
+            return;
+        }
+        $balance = $this->transact->get_balance($user_id, (int) $primary['currency_id']);
+        $this->template->assign_vars([
+            'U_OC_WALLET'       => $this->wallet_url(),
+            'OC_NAV_BALANCE'    => $primary['title'] . ': ' . $primary['prefix'] . $balance . $primary['suffix'],
+        ]);
     }
 
     /**
