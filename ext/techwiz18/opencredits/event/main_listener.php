@@ -258,7 +258,12 @@ class main_listener implements EventSubscriberInterface
      */
     public function show_front_summary($event)
     {
-        if ($event['id'] !== 'main' || ($event['mode'] !== 'front' && $event['mode'] !== ''))
+        // The event fires before set_active() resolves defaults, so a bare
+        // ucp.php arrives as id/mode '' — all three shapes are the front page.
+        $id = (string) $event['id'];
+        $mode = (string) $event['mode'];
+        $is_front = ($id === '' || $id === 'main') && ($mode === '' || $mode === 'front');
+        if (!$is_front)
         {
             return;
         }
