@@ -26,11 +26,12 @@ let members tip each other. A phpBB twin of
 
 ## Install on your forum
 
-1. Download this repo (Clone or Download ZIP) and find the
-   `ext/techwiz18/opencredits/` folder inside it.
-2. Upload that `opencredits` folder to your board at
-   `ext/techwiz18/opencredits/` (so `composer.json` lands at
-   `ext/techwiz18/opencredits/composer.json`), preserving the path.
+1. Download the latest `opencredits-x.y.z.zip` from the
+   [releases page](../../releases) and unzip it on your computer.
+   Inside you'll find an `ext/` folder.
+2. Upload its **contents** (`techwiz18/opencredits/`) into your board's `ext/`
+   folder (the one containing `phpbb/`), so `composer.json` lands at
+   `ext/techwiz18/opencredits/composer.json`. Merging folders is fine.
 3. Purge the cache (ACP → General → Purge the cache).
 4. ACP → Customise → Manage extensions → enable **OpenCredits**.
 

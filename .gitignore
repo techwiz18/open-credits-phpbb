@@ -4,6 +4,7 @@ www/
 db_data/
 # Build artifacts
 ext/techwiz18/opencredits/_releases/
+dist/
 # Env
 .env
 # OS
