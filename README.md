@@ -34,6 +34,9 @@ let members tip each other. A phpBB twin of
 3. Purge the cache (ACP → General → Purge the cache).
 4. ACP → Customise → Manage extensions → enable **OpenCredits**.
 
+No template or theme edits are needed — balances, donate links, and the
+navbar entry inject automatically on prosilver-based styles.
+
 Then:
 
 1. Permissions (`u_oc_view`, `u_oc_transfer` under Misc) are auto-allowed for
@@ -49,9 +52,10 @@ Then:
 * **Extensions tab → OpenCredits → Earn triggers** — per-trigger amount,
   currency, max awards per day, forum allowlist, on/off, plus add-trigger
   rows so new currencies can earn.
-* **Rebuild** — `php bin/phpbbcli.php opencredits:rebuild` recomputes every
+* **Rebuild** — Extensions tab → OpenCredits → **Tools** recomputes every
   balance from the append-only transaction log (use if balances ever look
-  wrong; disabling the extension keeps all data, deleting its data wipes it).
+  wrong), or CLI (`php bin/phpbbcli.php opencredits:rebuild`). Disabling the
+  extension keeps all data; deleting its data wipes it.
 
 ## Earning defaults
 
