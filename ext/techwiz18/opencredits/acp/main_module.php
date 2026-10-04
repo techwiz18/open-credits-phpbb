@@ -119,6 +119,10 @@ class main_module
         {
             trigger_error($language->lang('OC_ACP_NEED_PRIMARY') . adm_back_link($this->u_action), E_USER_WARNING);
         }
+        if (empty($rows[$primary_id]['active']))
+        {
+            trigger_error($language->lang('OC_ACP_PRIMARY_ACTIVE') . adm_back_link($this->u_action), E_USER_WARNING);
+        }
 
         foreach ($rows as $currency_id => $fields)
         {

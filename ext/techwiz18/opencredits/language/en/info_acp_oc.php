@@ -43,6 +43,7 @@ $lang = array_merge($lang, [
 
     'OC_ACP_NEED_TITLE'     => 'Every currency needs a title.',
     'OC_ACP_NEED_PRIMARY'   => 'Exactly one currency must be primary.',
+    'OC_ACP_PRIMARY_ACTIVE'  => 'The primary currency must stay active — pick a different primary first, then deactivate this one.',
     'OC_ACP_BAD_AMOUNT'     => 'Amounts must be numbers.',
     'OC_ACP_BAD_TRIGGER'    => 'Pick a valid trigger.',
 ]);
