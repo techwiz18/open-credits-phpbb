@@ -1,0 +1,19 @@
+<!-- IF .oc_wallet -->
+<div class="panel bg1">
+    <div class="inner">
+
+    <h3>{L_OC_TITLE}</h3>
+
+    <dl class="details">
+    <!-- BEGIN oc_wallet -->
+        <dt>{oc_wallet.TITLE}{L_COLON}</dt> <dd>{oc_wallet.BALANCE}</dd>
+    <!-- END oc_wallet -->
+    </dl>
+
+    <!-- IF U_OC_DONATE -->
+    <p><a href="{U_OC_DONATE}" class="button2">{L_OC_DONATE}</a></p>
+    <!-- ENDIF -->
+
+    </div>
+</div>
+<!-- ENDIF -->

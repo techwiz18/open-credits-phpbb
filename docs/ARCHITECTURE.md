@@ -53,8 +53,8 @@ Rebuild = ledger → `phpbb_oc_balance` (CLI/cron, Phase 2+).
 * UCP module `history` (ledger, paged 20) + `transfer` (form + save, `form_token` CSRF, `transfer()` refusal surfaced as insufficient-funds).
 * Template events: `viewtopic_body_postrow_custom_fields_after` (postbit, core
   `<strong>Label:</strong> value` format + donate link to the pre-filled
-  transfer form), `memberlist_view_user_statistics_after` (profile, per-currency
-  rows + donate link), `ucp_main_front_user_activity_append` (UCP front summary,
+  transfer form), `memberlist_view_content_append` (profile wallet panel with
+  per-currency rows + donate button), `ucp_main_front_user_activity_append` (UCP front summary,
   all active incl. zero). Postbit values ride on `post_row` (per-post — root
   blocks would repeat under every post); profile/front use template blocks.
   Data via `core.viewtopic_modify_post_row` /
