@@ -26,7 +26,7 @@ let members tip each other. A phpBB twin of
 
 ## Install on your forum
 
-1. Download the latest `opencredits-x.y.z.zip` from the
+1. Download the latest `OpenCredits-PhpBB-x.y.z.zip` from the
    [releases page](../../releases) and unzip it on your computer.
    Inside you'll find an `ext/` folder.
 2. Upload its **contents** (`techwiz18/opencredits/`) into your board's `ext/`

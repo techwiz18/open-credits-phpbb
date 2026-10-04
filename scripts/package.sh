@@ -5,7 +5,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 VER=$(python3 -c 'import json; print(json.load(open("ext/techwiz18/opencredits/composer.json"))["version"])')
-OUT="dist/opencredits-${VER}.zip"
+OUT="dist/OpenCredits-PhpBB-${VER}.zip"
 
 mkdir -p dist
 rm -f "$OUT"
