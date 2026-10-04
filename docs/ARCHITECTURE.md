@@ -51,8 +51,11 @@ Rebuild = ledger → `phpbb_oc_balance` (CLI/cron, Phase 2+).
 
 * UCP module `history` (ledger, paged 20) + `transfer` (form + save, `form_token` CSRF, `transfer()` refusal surfaced as insufficient-funds).
 * Template events: `viewtopic_body_postrow_custom_fields_after` (postbit, visible currencies),
-  `memberlist_view_user_statistics_after` (profile, all active). Data via
-  `core.viewtopic_modify_post_row` / `core.memberlist_modify_view_profile_template_vars`.
+  `memberlist_view_user_statistics_after` (profile, per-currency rows),
+  `ucp_main_front_user_activity_append` (UCP front summary, all active incl. zero).
+  Data via `core.viewtopic_modify_post_row` /
+  `core.memberlist_modify_view_profile_template_vars` /
+  `core.ucp_display_module_before` (front-page gate).
 * Permissions `u_oc_view` (history + all balance display), `u_oc_transfer` (transfer). Default deny; data migration auto-allows for Registered.
 
 ## Conventions for new work

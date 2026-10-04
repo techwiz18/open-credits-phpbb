@@ -10,5 +10,6 @@ services:
             - '@techwiz18.opencredits.transact'
             - '@auth'
             - '@template'
+            - '@user'
         tags:
             - { name: event.listener }

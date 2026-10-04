@@ -24,17 +24,21 @@ class main_listener implements EventSubscriberInterface
     /** @var \phpbb\template\template */
     protected $template;
 
+    /** @var \phpbb\user */
+    protected $user;
+
     /** @var array Per-request cache: user_id => [currency_id => balance] */
     protected $balance_cache = [];
 
     /** @var array|null Per-request cache of active currency rows */
     protected $currency_cache = null;
 
-    public function __construct(\techwiz18\opencredits\service\transact $transact, \phpbb\auth\auth $auth, \phpbb\template\template $template)
+    public function __construct(\techwiz18\opencredits\service\transact $transact, \phpbb\auth\auth $auth, \phpbb\template\template $template, \phpbb\user $user)
     {
         $this->transact = $transact;
         $this->auth = $auth;
         $this->template = $template;
+        $this->user = $user;
     }
 
     public static function getSubscribedEvents()
@@ -49,6 +53,7 @@ class main_listener implements EventSubscriberInterface
             'core.user_add_after'   => 'on_user_register',
             'core.viewtopic_modify_post_row'                    => 'show_postbit_credits',
             'core.memberlist_modify_view_profile_template_vars' => 'show_profile_credits',
+            'core.ucp_display_module_before'                    => 'show_front_summary',
         ];
     }
 
@@ -244,5 +249,39 @@ class main_listener implements EventSubscriberInterface
             $parts[] = $currency['title'] . ': ' . $currency['prefix'] . $this->balance_cache[$user_id][$currency_id] . $currency['suffix'];
         }
         return implode(', ', $parts);
+    }
+
+    /**
+     * Wallet summary on the UCP front page ("Your activity" section).
+     * Shows every active currency, including zero balances, so members
+     * always see what exists. Gated on u_oc_view.
+     */
+    public function show_front_summary($event)
+    {
+        if ($event['id'] !== 'main' || ($event['mode'] !== 'front' && $event['mode'] !== ''))
+        {
+            return;
+        }
+        if (!$this->auth->acl_get('u_oc_view'))
+        {
+            return;
+        }
+        $user_id = (int) ($this->user->data['user_id'] ?? 0);
+        if ($user_id <= 0 || $user_id === (int) ANONYMOUS)
+        {
+            return;
+        }
+        if ($this->currency_cache === null)
+        {
+            $this->currency_cache = $this->transact->active_currencies();
+        }
+        foreach ($this->currency_cache as $currency)
+        {
+            $balance = $this->transact->get_balance($user_id, (int) $currency['currency_id']);
+            $this->template->assign_block_vars('oc_front', [
+                'TITLE'     => $currency['title'],
+                'BALANCE'   => $currency['prefix'] . $balance . $currency['suffix'],
+            ]);
+        }
     }
 }
