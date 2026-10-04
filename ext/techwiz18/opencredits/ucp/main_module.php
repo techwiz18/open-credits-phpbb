@@ -72,7 +72,7 @@ class main_module
         $template->assign_vars([
             'S_OC_HISTORY'  => true,
             'TOTAL_ROWS'    => $total,
-            'L_OC_HISTORY_EMPTY' => $user->lang('OC_HISTORY_EMPTY'),
+            'OC_PAGE_TITLE' => $user->lang('UCP_OC_HISTORY'),
         ]);
     }
 
@@ -147,6 +147,7 @@ class main_module
         add_form_key('oc_transfer');
         $template->assign_vars([
             'S_OC_TRANSFER'     => true,
+            'OC_PAGE_TITLE'     => $user->lang('UCP_OC_TRANSFER'),
             'ERROR'             => implode('<br>', $errors),
             'OC_RECIPIENT'      => $recipient_default,
             'OC_AMOUNT'         => $amount_default,

@@ -186,8 +186,9 @@ class main_listener implements EventSubscriberInterface
     }
 
     /**
-     * "Credits: $6.00, Loyalty: 12 pts" style label for a user.
-     * Returns '' when the user holds nothing (keeps postbit clean).
+     * "Credits: $6.00" style label per currency. Returns '' when the user
+     * holds nothing (keeps postbit clean). Identical string on postbit and
+     * profile so the two surfaces never disagree.
      */
     protected function credits_label($user_id, $visible_only)
     {
@@ -223,7 +224,7 @@ class main_listener implements EventSubscriberInterface
             {
                 continue;
             }
-            $parts[] = $currency['prefix'] . $this->balance_cache[$user_id][$currency_id] . $currency['suffix'] . ' ' . $currency['title'];
+            $parts[] = $currency['title'] . ': ' . $currency['prefix'] . $this->balance_cache[$user_id][$currency_id] . $currency['suffix'];
         }
         return implode(', ', $parts);
     }
