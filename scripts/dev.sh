@@ -37,8 +37,10 @@ case "$cmd" in
     docker compose logs -f "${2:-web}"
     ;;
   fix-perms)
-    # Apache runs as www-data; the installer needs these writable (dev-only 0777).
-    docker compose exec -T web bash -c "chmod 0777 config.php && chmod -R 0777 cache store files images/avatars/upload"
+    # Apache runs as www-data but unpacked files belong to the host user.
+    # The installer chmod()s these itself, which only the owner can do, so
+    # hand ownership to www-data (all under gitignored www/, dev-only).
+    docker compose exec -T web bash -c "chown -R www-data:www-data config.php cache store files images/avatars/upload && chmod 0777 config.php && chmod -R 0777 cache store files images/avatars/upload"
     ;;
   link-ext)
     # ext/ is bind-mounted into the web container (see docker-compose.yml).
