@@ -17,7 +17,7 @@ The phpBB runtime in `www/` is gitignored and never committed.
 | `ext.php` | Enable/disable checks (`is_enableable`: phpBB + PHP version) |
 | `config/services.yml` | Listener + Transact service definitions |
 | `event/main_listener.php` | All core-event subscriptions (no business logic) |
-| `service/transact.php` | **Only place that writes balances.** Row lock + txn + ledger |
+| `service/transact.php` | **Only place that writes balances.** Row lock + txn + ledger. Integer-cents math; `adjust()` unrestricted, `transfer()` never overdraws |
 | `migrations/v10x/*.php` | Schema + seed data + ACP/UCP module + permission installs |
 | `acp/main_info.php`, `acp/main_module.php` | ACP currency/event management |
 | `ucp/main_info.php`, `ucp/main_module.php` | Wallet history + transfer form |
@@ -34,7 +34,7 @@ The phpBB runtime in `www/` is gitignored and never committed.
 * `phpbb_oc_transaction(id, user_id, currency_id, amount, trigger_name, content_id, note, log_time)` — append-only ledger. **Amounts SIGNED** (`DECIMAL:10`); `UINT` family is unsigned in phpBB DBAL.
 * No `users` table alteration in v1 — primary balance reads from `phpbb_oc_balance`.
 
-## Trigger matrix (planned; listener → service call)
+## Trigger matrix (live since Phase 2; listener → service call)
 
 | Core event | Listener method | Trigger awarded to |
 |---|---|---|

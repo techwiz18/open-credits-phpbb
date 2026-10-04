@@ -1,5 +1,12 @@
 services:
+    techwiz18.opencredits.transact:
+        class: techwiz18\opencredits\service\transact
+        arguments:
+            - '@dbal.conn'
+            - '%core.table_prefix%'
     techwiz18.opencredits.listener:
         class: techwiz18\opencredits\event\main_listener
+        arguments:
+            - '@techwiz18.opencredits.transact'
         tags:
             - { name: event.listener }
