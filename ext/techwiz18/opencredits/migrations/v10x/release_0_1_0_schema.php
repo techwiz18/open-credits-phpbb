@@ -54,7 +54,8 @@ class release_0_1_0_schema extends \phpbb\db\migration\migration
                     'COLUMNS' => [
                         'event_id'      => ['UINT', null, 'auto_increment'],
                         'currency_id'   => ['UINT', 0],
-                        'trigger'       => ['VCHAR:64', ''],
+                        // "trigger" is reserved in MySQL 8 — trigger_name instead.
+                        'trigger_name'  => ['VCHAR:64', ''],
                         // SIGNED on purpose.
                         'amount'        => ['DECIMAL:10', '0.00'],
                         'forum_ids'     => ['TEXT', ''],
@@ -63,7 +64,7 @@ class release_0_1_0_schema extends \phpbb\db\migration\migration
                     ],
                     'PRIMARY_KEY' => 'event_id',
                     'KEYS' => [
-                        'idx_trigger' => ['INDEX', ['trigger', 'active']],
+                        'idx_trigger_name' => ['INDEX', ['trigger_name', 'active']],
                     ],
                 ],
                 $this->table_prefix . 'oc_transaction' => [
@@ -73,7 +74,7 @@ class release_0_1_0_schema extends \phpbb\db\migration\migration
                         'currency_id'   => ['UINT', 0],
                         // SIGNED on purpose: the ledger stores debit rows.
                         'amount'        => ['DECIMAL:10', '0.00'],
-                        'trigger'       => ['VCHAR:64', ''],
+                        'trigger_name'  => ['VCHAR:64', ''],
                         'content_id'    => ['UINT', 0],
                         'note'          => ['VCHAR:255', ''],
                         'log_time'      => ['TIMESTAMP', 0],

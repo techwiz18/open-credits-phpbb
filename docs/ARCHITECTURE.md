@@ -30,8 +30,8 @@ The phpBB runtime in `www/` is gitignored and never committed.
 
 * `phpbb_oc_currency(currency_id, title, prefix, suffix, decimals, allow_negative, active, is_primary, visible)` — seed `(1, 'Credits', '$', '', 2, 0, 1, 1, 1)`. Exactly one primary; `visible` lists in postbit/menu.
 * `phpbb_oc_balance(user_id, currency_id, balance)` — cached per-currency balances maintained by Transact; missing row means 0.
-* `phpbb_oc_event(event_id, currency_id, trigger, amount, forum_ids, max_per_day, active)` — seed: `thread 5.00`, `post 1.00`, `register 10.00`, `daily_login 5.00`. (`reaction_received` deferred — no core like event, see GOTCHAS.)
-* `phpbb_oc_transaction(id, user_id, currency_id, amount, trigger, content_id, note, log_time)` — append-only ledger. **Amounts SIGNED** (`DECIMAL:10`); `UINT` family is unsigned in phpBB DBAL.
+* `phpbb_oc_event(event_id, currency_id, trigger_name, amount, forum_ids, max_per_day, active)` — seed: `thread 5.00`, `post 1.00`, `register 10.00`, `daily_login 5.00`. (`reaction_received` deferred — no core like event, see GOTCHAS.)
+* `phpbb_oc_transaction(id, user_id, currency_id, amount, trigger_name, content_id, note, log_time)` — append-only ledger. **Amounts SIGNED** (`DECIMAL:10`); `UINT` family is unsigned in phpBB DBAL.
 * No `users` table alteration in v1 — primary balance reads from `phpbb_oc_balance`.
 
 ## Trigger matrix (planned; listener → service call)

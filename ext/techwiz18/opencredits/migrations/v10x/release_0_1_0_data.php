@@ -78,7 +78,7 @@ class release_0_1_0_data extends \phpbb\db\migration\migration
             {
                 $sql = 'INSERT INTO ' . $this->table_prefix . 'oc_event ' . $this->db->sql_build_array('INSERT', [
                     'currency_id'   => $currency_id,
-                    'trigger'       => $trigger,
+                    'trigger_name'  => $trigger,
                     'amount'        => $amount,
                     'forum_ids'     => '',
                     'max_per_day'   => 0,
